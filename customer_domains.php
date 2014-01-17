@@ -244,6 +244,14 @@ if ($page == 'overview') {
 				");
 				Database::pexecute($del_stmt, array('domainid' => $id));
 
+				if ($result['isdynamicdomain']) {
+					$stmt = Database::prepare("UPDATE `" . TABLE_PANEL_CUSTOMERS . "`
+						SET `dynamicdomains_used` = `dynamicdomains_used` - 1
+						WHERE `customerid` = :customerid"
+					);
+					Database::pexecute($stmt, array("customerid" => $userinfo['customerid']));
+				}
+
 				inserttask('1');
 
 				// Using nameserver, insert a task which rebuilds the server config
@@ -317,6 +325,17 @@ if ($page == 'overview') {
 					);
 					$aliasdomain_check = Database::pexecute_first($aliasdomain_stmt, array("id" => $aliasdomain, "customerid" => $userinfo['customerid']));
 					triggerLetsEncryptCSRForAliasDestinationDomain($aliasdomain, $log);
+				}
+
+				$isdynamicdomain = isset($_POST['isdynamicdomain']) ? intval($_POST['isdynamicdomain']) : 0;
+				$dynamicipv4 = isset($_POST['dynamicipv4']) ? $_POST['dynamicipv4'] : '';
+				$dynamicipv4 = ($dynamicipv4 == '') ? null : validate_ip($dynamicipv4);
+				$dynamicipv6 = isset($_POST['dynamicipv6']) ? $_POST['dynamicipv6'] : '';
+				$dynamicipv6 = ($dynamicipv6 == '') ? null : validate_ip($dynamicipv6);
+
+				if ($isdynamicdomain == 1 && $result['isdynamicdomain'] == 0 && $userinfo['dynamicdomains'] != -1 && $userinfo['dynamicdomains_used'] + 1 > $userinfo['dynamicdomains'] ) {
+					standard_error('dynamicdomainslimit');
+					exit;
 				}
 
 				if (isset($_POST['url']) && $_POST['url'] != '' && validateUrl($_POST['url'])) {
@@ -420,6 +439,9 @@ if ($page == 'overview') {
 						`isemaildomain` = :isemaildomain,
 						`iswildcarddomain` = :iswildcarddomain,
 						`phpenabled` = :phpenabled,
+						`isdynamicdomain` = :isdynamicdomain,
+						`dynamicipv4` = :dynamicipv4,
+						`dynamicipv6` = :dynamicipv6,
 						`openbasedir` = :openbasedir,
 						`openbasedir_path` = :openbasedir_path,
 						`speciallogfile` = :speciallogfile,
@@ -438,6 +460,9 @@ if ($page == 'overview') {
 						"aliasdomain" => $aliasdomain != 0 ? $aliasdomain : null,
 						"parentdomainid" => $domain_check['id'],
 						"wwwserveralias" => $domain_check['wwwserveralias'] == '1' ? '1' : '0',
+						"isdynamicdomain" => $isdynamicdomain,
+						"dynamicipv4" => $dynamicipv4,
+						"dynamicipv6" => $dynamicipv6,
 						"iswildcarddomain" => $domain_check['iswildcarddomain'] == '1' ? '1' : '0',
 						"isemaildomain" => $domain_check['subcanemaildomain'] == '3' ? '1' : '0',
 						"openbasedir" => $domain_check['openbasedir'],
@@ -473,6 +498,14 @@ if ($page == 'overview') {
 						WHERE `customerid` = :customerid"
 					);
 					Database::pexecute($stmt, array("customerid" => $userinfo['customerid']));
+
+					if ($result['isdynamicdomain']) {
+						$stmt = Database::prepare("UPDATE `" . TABLE_PANEL_CUSTOMERS . "`
+							SET `subdomains_used` = `subdomains_used` + 1
+							WHERE `customerid` = :customerid"
+						);
+						Database::pexecute($stmt, array("customerid" => $userinfo['customerid']));
+					}
 
 					$log->logAction(USR_ACTION, LOG_INFO, "added subdomain '" . $completedomain . "'");
 					inserttask('1');
@@ -643,6 +676,17 @@ if ($page == 'overview') {
 					standard_error('domainisaliasorothercustomer');
 				}
 
+				$isdynamicdomain = isset($_POST['isdynamicdomain']) ? intval($_POST['isdynamicdomain']) : 0;
+				$dynamicipv4 = isset($_POST['dynamicipv4']) ? $_POST['dynamicipv4'] : '';
+				$dynamicipv4 = ($dynamicipv4 == '') ? null : validate_ip($dynamicipv4);
+				$dynamicipv6 = isset($_POST['dynamicipv6']) ? $_POST['dynamicipv6'] : '';
+				$dynamicipv6 = ($dynamicipv6 == '') ? null : validate_ip($dynamicipv6);
+
+				if ($isdynamicdomain == 1 && $result['isdynamicdomain'] == 0 && $userinfo['dynamicdomains'] != -1 && $userinfo['dynamicdomains_used'] + 1 > $userinfo['dynamicdomains'] ) {
+					standard_error('dynamicdomainslimit');
+					exit;
+				}
+
 				if (isset($_POST['openbasedir_path']) && $_POST['openbasedir_path'] == '1') {
 					$openbasedir_path = '1';
 				} else {
@@ -721,6 +765,9 @@ if ($page == 'overview') {
 					if ($path != $result['documentroot']
 						|| $isemaildomain != $result['isemaildomain']
 						|| $wwwserveralias != $result['wwwserveralias']
+						|| $isdynamicdomain != $result['isdynamicdomain']
+						|| $dynamicipv4 != $result['dynamicipv4']
+						|| $dynamicipv6 != $result['dynamicipv6']
 						|| $iswildcarddomain != $result['iswildcarddomain']
 						|| $aliasdomain != $result['aliasdomain']
 						|| $openbasedir_path != $result['openbasedir_path']
@@ -737,6 +784,9 @@ if ($page == 'overview') {
 							`documentroot`= :documentroot,
 							`isemaildomain`= :isemaildomain,
 							`wwwserveralias`= :wwwserveralias,
+							`isdynamicdomain` = :isdynamicdomain,
+							`dynamicipv4` = :dynamicipv4,
+							`dynamicipv6` = :dynamicipv6,
 							`iswildcarddomain`= :iswildcarddomain,
 							`aliasdomain`= :aliasdomain,
 							`openbasedir_path`= :openbasedir_path,
@@ -753,6 +803,9 @@ if ($page == 'overview') {
 							"documentroot" => $path,
 							"isemaildomain" => $isemaildomain,
 							"wwwserveralias" => $wwwserveralias,
+							"isdynamicdomain" => $isdynamicdomain,
+							"dynamicipv4" => $dynamicipv4,
+							"dynamicipv6" => $dynamicipv6,
 							"iswildcarddomain" => $iswildcarddomain,
 							"aliasdomain" => ($aliasdomain != 0 && $alias_check == 0) ? $aliasdomain : null,
 							"openbasedir_path" => $openbasedir_path,
@@ -784,6 +837,14 @@ if ($page == 'overview') {
 							Database::pexecute($del_stmt, array(
 								'id' => $id
 							));
+						}
+
+						if ($isdynamicdomain != $result['isdynamicdomain']) {
+							$stmt = Database::prepare("UPDATE `" . TABLE_PANEL_CUSTOMERS . "`
+								SET `dynamicdomains_used` = `dynamicdomains_used` + :difference
+								WHERE `customerid` = :customerid"
+							);
+							Database::pexecute($stmt, array("difference" => ($isdynamicdomain ? 1 : -1), "customerid" => $userinfo['customerid']));
 						}
 
 						inserttask('1');

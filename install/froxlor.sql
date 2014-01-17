@@ -123,6 +123,8 @@ CREATE TABLE `panel_admins` (
   `tickets_see_all` tinyint(1) NOT NULL default '0',
   `subdomains` int(15) NOT NULL default '0',
   `subdomains_used` int(15) NOT NULL default '0',
+  `dynamicdomains` int(15) NOT NULL default '0',
+  `dynamicdomains_used` int(15) NOT NULL default '0',
   `traffic` bigint(30) NOT NULL default '0',
   `traffic_used` bigint(30) NOT NULL default '0',
   `deactivated` tinyint(1) NOT NULL default '0',
@@ -175,6 +177,8 @@ CREATE TABLE `panel_customers` (
   `tickets_used` int(15) NOT NULL default '0',
   `subdomains` int(15) NOT NULL default '0',
   `subdomains_used` int(15) NOT NULL default '0',
+  `dynamicdomains` int(15) NOT NULL default '0',
+  `dynamicdomains_used` int(15) NOT NULL default '0',
   `traffic` bigint(30) NOT NULL default '0',
   `traffic_used` bigint(30) NOT NULL default '0',
   `documentroot` varchar(255) NOT NULL default '',
@@ -232,6 +236,9 @@ CREATE TABLE `panel_domains` (
   `iswildcarddomain` tinyint(1) NOT NULL default '1',
   `subcanemaildomain` tinyint(1) NOT NULL default '0',
   `caneditdomain` tinyint(1) NOT NULL default '1',
+  `isdynamicdomain` tinyint(1) NOT NULL default '0',
+  `dynamicipv4` varchar(15) NULL default NULL,
+  `dynamicipv6` varchar(32) NULL default NULL,
   `zonefile` varchar(255) NOT NULL default '',
   `dkim` tinyint(1) NOT NULL default '0',
   `dkim_id` int(11) unsigned NOT NULL default '0',
@@ -687,8 +694,8 @@ opcache.interned_strings_buffer'),
 	('panel', 'password_special_char_required', '0'),
 	('panel', 'password_special_char', '!?<>§$%+#=@'),
 	('panel', 'customer_hide_options', ''),
-	('panel', 'version', '0.9.39.5'),
-	('panel', 'db_version', '201802130');
+	('panel', 'version', '0.9.38.7'),
+	('panel', 'db_version', '201802131');
 
 
 DROP TABLE IF EXISTS `panel_tasks`;

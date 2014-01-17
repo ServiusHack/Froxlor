@@ -118,6 +118,11 @@ if ($page == '' || $page == 'overview') {
 			if (isset($_POST['subdomains_ul'])) {
 				$value_arr['subdomains'] = - 1;
 			}
+
+			$value_arr['dynamicdomains'] = intval_ressource($_POST['dynamicdomains']);
+			if (isset($_POST['dynamicdomains_ul'])) {
+				$value_arr['dynamicdomains'] = - 1;
+			}
 			
 			$value_arr['emails'] = intval_ressource($_POST['emails']);
 			if (isset($_POST['emails_ul'])) {
@@ -216,6 +221,7 @@ if ($page == '' || $page == 'overview') {
 			$diskspace_ul = makecheckbox('diskspace_ul', $lng['customer']['unlimited'], '-1', false, '0', true, true);
 			$traffic_ul = makecheckbox('traffic_ul', $lng['customer']['unlimited'], '-1', false, '0', true, true);
 			$subdomains_ul = makecheckbox('subdomains_ul', $lng['customer']['unlimited'], '-1', false, '0', true, true);
+			$dynamicdomains_ul = makecheckbox('dynamicdomains_ul', $lng['customer']['unlimited'], '-1', false, '0', true, true);
 			$emails_ul = makecheckbox('emails_ul', $lng['customer']['unlimited'], '-1', false, '0', true, true);
 			$email_accounts_ul = makecheckbox('email_accounts_ul', $lng['customer']['unlimited'], '-1', false, '0', true, true);
 			$email_forwarders_ul = makecheckbox('email_forwarders_ul', $lng['customer']['unlimited'], '-1', false, '0', true, true);
@@ -301,6 +307,11 @@ if ($page == '' || $page == 'overview') {
 				$value_arr['subdomains'] = intval_ressource($_POST['subdomains']);
 				if (isset($_POST['subdomains_ul'])) {
 					$value_arr['subdomains'] = - 1;
+				}
+
+				$value_arr['dynamicdomains'] = intval_ressource($_POST['dynamicdomains']);
+				if (isset($_POST['dynamicdomains_ul'])) {
+					$value_arr['dynamicdomains'] = - 1;
 				}
 				
 				$value_arr['emails'] = intval_ressource($_POST['emails']);
@@ -411,6 +422,11 @@ if ($page == '' || $page == 'overview') {
 				$subdomains_ul = makecheckbox('subdomains_ul', $lng['customer']['unlimited'], '-1', false, $result['subdomains'], true, true);
 				if ($result['subdomains'] == '-1') {
 					$result['subdomains'] = '';
+				}
+
+				$dynamicdomains_ul = makecheckbox('dynamicdomains_ul', $lng['customer']['unlimited'], '-1', false, $result['dynamicdomains'], true, true);
+				if ($result['dynamicdomains'] == '-1') {
+					$result['dynamicdomains'] = '';
 				}
 				
 				$emails_ul = makecheckbox('emails_ul', $lng['customer']['unlimited'], '-1', false, $result['emails'], true, true);

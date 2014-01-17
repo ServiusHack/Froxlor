@@ -359,6 +359,10 @@ if ($page == 'customers'
 					$admin_update_query.= ", `subdomains_used` = `subdomains_used` - 0" . (int)$result['subdomains'];
 				}
 
+				if ($result['dynamicdomains'] != '-1') {
+					$admin_update_query.= ", `dynamicdomains_used` = `dynamicdomains_used` - 0" . (int)$result['dynamicdomains'];
+				}
+
 				if ($result['ftps'] != '-1') {
 					$admin_update_query.= ", `ftps_used` = `ftps_used` - 0" . (int)$result['ftps'];
 				}
@@ -451,6 +455,11 @@ if ($page == 'customers'
 				$subdomains = intval_ressource($_POST['subdomains']);
 				if (isset($_POST['subdomains_ul'])) {
 					$subdomains = - 1;
+				}
+
+				$dynamicdomains = intval_ressource($_POST['dynamicdomains']);
+				if (isset($_POST['dynamicdomains_ul'])) {
+					$dynamicdomains = - 1;
 				}
 
 				$emails = intval_ressource($_POST['emails']);
@@ -569,6 +578,7 @@ if ($page == 'customers'
 				   || ((($userinfo['ftps_used'] + $ftps) > $userinfo['ftps']) && $userinfo['ftps'] != '-1')
 				   || ((($userinfo['tickets_used'] + $tickets) > $userinfo['tickets']) && $userinfo['tickets'] != '-1')
 				   || ((($userinfo['subdomains_used'] + $subdomains) > $userinfo['subdomains']) && $userinfo['subdomains'] != '-1')
+				   || ((($userinfo['dynamicdomains_used'] + $dynamicdomains) > $userinfo['dynamicdomains']) && $userinfo['dynamicdomains'] != '-1')
 				   || (($diskspace / 1024) == '-1' && ($userinfo['diskspace'] / 1024) != '-1')
 				   || ($mysqls == '-1' && $userinfo['mysqls'] != '-1')
 				   || ($emails == '-1' && $userinfo['emails'] != '-1')
@@ -578,6 +588,7 @@ if ($page == 'customers'
 				   || ($ftps == '-1' && $userinfo['ftps'] != '-1')
 				   || ($tickets == '-1' && $userinfo['tickets'] != '-1')
 				   || ($subdomains == '-1' && $userinfo['subdomains'] != '-1')
+				   || ($dynamicdomains == '-1' && $userinfo['dynamicdomains'] != '-1')
 				) {
 					standard_error('youcantallocatemorethanyouhave');
 				}
@@ -695,6 +706,7 @@ if ($page == 'customers'
 						'diskspace' => $diskspace,
 						'traffic' => $traffic,
 						'subdomains' => $subdomains,
+						'dynamicdomains' => $dynamicdomains,
 						'emails' => $emails,
 						'email_accounts' => $email_accounts,
 						'email_forwarders' => $email_forwarders,
@@ -735,6 +747,7 @@ if ($page == 'customers'
 						`diskspace` = :diskspace,
 						`traffic` = :traffic,
 						`subdomains` = :subdomains,
+						`dynamicdomains` = :dynamicdomains,
 						`emails` = :emails,
 						`email_accounts` = :email_accounts,
 						`email_forwarders` = :email_forwarders,
@@ -781,6 +794,10 @@ if ($page == 'customers'
 
 					if ($subdomains != '-1') {
 						$admin_update_query.= ", `subdomains_used` = `subdomains_used` + 0" . (int)$subdomains;
+					}
+
+					if ($dynamicdomains != '-1') {
+						$admin_update_query.= ", `dynamicdomains_used` = `dynamicdomains_used` + 0" . (int)$dynamicdomains;
 					}
 
 					if ($ftps != '-1') {
@@ -1043,6 +1060,7 @@ if ($page == 'customers'
 				$diskspace_ul = makecheckbox('diskspace_ul', $lng['customer']['unlimited'], '-1', false, '0', true, true);
 				$traffic_ul = makecheckbox('traffic_ul', $lng['customer']['unlimited'], '-1', false, '0', true, true);
 				$subdomains_ul = makecheckbox('subdomains_ul', $lng['customer']['unlimited'], '-1', false, '0', true, true);
+				$dynamicdomains_ul = makecheckbox('dynamicdomains_ul', $lng['customer']['unlimited'], '-1', false, '0', true, true);
 				$emails_ul = makecheckbox('emails_ul', $lng['customer']['unlimited'], '-1', false, '0', true, true);
 				$email_accounts_ul = makecheckbox('email_accounts_ul', $lng['customer']['unlimited'], '-1', false, '0', true, true);
 				$email_forwarders_ul = makecheckbox('email_forwarders_ul', $lng['customer']['unlimited'], '-1', false, '0', true, true);
@@ -1174,6 +1192,11 @@ if ($page == 'customers'
 					$subdomains = - 1;
 				}
 
+				$dynamicdomains = intval_ressource($_POST['dynamicdomains']);
+				if (isset($_POST['dynamicdomains_ul'])) {
+					$dynamicdomains = - 1;
+				}
+
 				$emails = intval_ressource($_POST['emails']);
 				if (isset($_POST['emails_ul'])) {
 					$emails = - 1;
@@ -1281,6 +1304,7 @@ if ($page == 'customers'
 				   || ((($userinfo['ftps_used'] + $ftps - $result['ftps']) > $userinfo['ftps']) && $userinfo['ftps'] != '-1')
 				   || ((($userinfo['tickets_used'] + $tickets - $result['tickets']) > $userinfo['tickets']) && $userinfo['tickets'] != '-1')
 				   || ((($userinfo['subdomains_used'] + $subdomains - $result['subdomains']) > $userinfo['subdomains']) && $userinfo['subdomains'] != '-1')
+				   || ((($userinfo['dynamicdomains_used'] + $dynamicdomains - $result['dynamicdomains']) > $userinfo['dynamicdomains']) && $userinfo['dynamicdomains'] != '-1')
 				   || (($diskspace / 1024) == '-1' && ($userinfo['diskspace'] / 1024) != '-1')
 				   || ($mysqls == '-1' && $userinfo['mysqls'] != '-1')
 				   || ($emails == '-1' && $userinfo['emails'] != '-1')
@@ -1290,6 +1314,7 @@ if ($page == 'customers'
 				   || ($ftps == '-1' && $userinfo['ftps'] != '-1')
 				   || ($tickets == '-1' && $userinfo['tickets'] != '-1')
 				   || ($subdomains == '-1' && $userinfo['subdomains'] != '-1')
+				   || ($dynamicdomains == '-1' && $userinfo['dynamicdomains'] != '-1')
 				) {
 					standard_error('youcantallocatemorethanyouhave');
 				}
@@ -1502,6 +1527,7 @@ if ($page == 'customers'
 						'diskspace' => $diskspace,
 						'traffic' => $traffic,
 						'subdomains' => $subdomains,
+						'dynamicdomains' => $dynamicdomains,
 						'emails' => $emails,
 						'email_accounts' => $email_accounts,
 						'email_forwarders' => $email_forwarders,
@@ -1537,6 +1563,7 @@ if ($page == 'customers'
 						`diskspace` = :diskspace,
 						`traffic` = :traffic,
 						`subdomains` = :subdomains,
+						`dynamicdomains` = :dynamicdomains,
 						`emails` = :emails,
 						`email_accounts` = :email_accounts,
 						`email_forwarders` = :email_forwarders,
@@ -1628,6 +1655,17 @@ if ($page == 'customers'
 						}
 					}
 
+					if ($dynamicdomains != '-1' || $result['dynamicdomains'] != '-1') {
+						$admin_update_query.= ", `dynamicdomains_used` = `dynamicdomains_used` ";
+
+						if ($dynamicdomains != '-1') {
+							$admin_update_query.= " + 0" . (int)$dynamicdomains . " ";
+						}
+						if ($result['dynamicdomains'] != '-1') {
+							$admin_update_query.= " - 0" . (int)$result['dynamicdomains'] . " ";
+						}
+					}
+
 					if ($ftps != '-1' || $result['ftps'] != '-1') {
 						$admin_update_query.= ", `ftps_used` = `ftps_used` ";
 
@@ -1708,6 +1746,11 @@ if ($page == 'customers'
 				$subdomains_ul = makecheckbox('subdomains_ul', $lng['customer']['unlimited'], '-1', false, $result['subdomains'], true, true);
 				if ($result['subdomains'] == '-1') {
 					$result['subdomains'] = '';
+				}
+
+				$dynamicdomains_ul = makecheckbox('dynamicdomains_ul', $lng['customer']['unlimited'], '-1', false, $result['dynamicdomains'], true, true);
+				if ($result['dynamicdomains'] == '-1') {
+					$result['dynamicdomains'] = '';
 				}
 
 				$emails_ul = makecheckbox('emails_ul', $lng['customer']['unlimited'], '-1', false, $result['emails'], true, true);

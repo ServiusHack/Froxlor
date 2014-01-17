@@ -231,6 +231,11 @@ if ($page == 'admins'
 				$subdomains = -1;
 			}
 
+			$dynamicdomains = intval_ressource($_POST['dynamicdomains']);
+			if (isset($_POST['dynamicdomains_ul'])) {
+				$dynamicdomains = - 1;
+			}
+
 			$emails = intval_ressource($_POST['emails']);
 			if (isset($_POST['emails_ul'])) {
 				$emails = -1;
@@ -392,6 +397,7 @@ if ($page == 'admins'
 					'diskspace' => $diskspace,
 					'traffic' => $traffic,
 					'subdomains' => $subdomains,
+					'dynamicdomains' => $dynamicdomains,
 					'emails' => $emails,
 					'accounts' => $email_accounts,
 					'forwarders' => $email_forwarders,
@@ -422,6 +428,7 @@ if ($page == 'admins'
 					`diskspace` = :diskspace,
 					`traffic` = :traffic,
 					`subdomains` = :subdomains,
+					`dynamicdomains` = :dynamicdomains,
 					`emails` = :emails,
 					`email_accounts` = :accounts,
 					`email_forwarders` = :forwarders,
@@ -463,6 +470,7 @@ if ($page == 'admins'
 			$traffic_ul = makecheckbox('traffic_ul', $lng['customer']['unlimited'], '-1', false, '0', true, true);
 			$domains_ul = makecheckbox('domains_ul', $lng['customer']['unlimited'], '-1', false, '0', true, true);
 			$subdomains_ul = makecheckbox('subdomains_ul', $lng['customer']['unlimited'], '-1', false, '0', true, true);
+			$dynamicdomains_ul = makecheckbox('dynamicdomains_ul', $lng['customer']['unlimited'], '-1', false, '0', true, true);
 			$emails_ul = makecheckbox('emails_ul', $lng['customer']['unlimited'], '-1', false, '0', true, true);
 			$email_accounts_ul = makecheckbox('email_accounts_ul', $lng['customer']['unlimited'], '-1', false, '0', true, true);
 			$email_forwarders_ul = makecheckbox('email_forwarders_ul', $lng['customer']['unlimited'], '-1', false, '0', true, true);
@@ -546,6 +554,11 @@ if ($page == 'admins'
 					$subdomains = intval_ressource($_POST['subdomains']);
 					if (isset($_POST['subdomains_ul'])) {
 						$subdomains = -1;
+					}
+
+					$dynamicdomains = intval_ressource($_POST['dynamicdomains']);
+					if (isset($_POST['dynamicdomains_ul'])) {
+						$dynamicdomains = - 1;
 					}
 
 					$emails = intval_ressource($_POST['emails']);
@@ -727,6 +740,7 @@ if ($page == 'admins'
 						'diskspace' => $diskspace,
 						'traffic' => $traffic,
 						'subdomains' => $subdomains,
+						'dynamicdomains' => $dynamicdomains,
 						'emails' => $emails,
 						'accounts' => $email_accounts,
 						'forwarders' => $email_forwarders,
@@ -757,6 +771,7 @@ if ($page == 'admins'
 						`diskspace` = :diskspace,
 						`traffic` = :traffic,
 						`subdomains` = :subdomains,
+						`dynamicdomains` = :dynamicdomains,
 						`emails` = :emails,
 						`email_accounts` = :accounts,
 						`email_forwarders` = :forwarders,
@@ -807,6 +822,11 @@ if ($page == 'admins'
 				$subdomains_ul = makecheckbox('subdomains_ul', $lng['customer']['unlimited'], '-1', false, $result['subdomains'], true, true);
 				if ($result['subdomains'] == '-1') {
 					$result['subdomains'] = '';
+				}
+
+				$dynamicdomains_ul = makecheckbox('dynamicdomains_ul', $lng['customer']['unlimited'], '-1', false, $result['dynamicdomains'], true, true);
+				if ($result['dynamicdomains'] == '-1') {
+					$result['dynamicdomains'] = '';
 				}
 
 				$emails_ul = makecheckbox('emails_ul', $lng['customer']['unlimited'], '-1', false, $result['emails'], true, true);

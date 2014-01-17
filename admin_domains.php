@@ -238,6 +238,14 @@ if ($page == 'domains' || $page == 'overview') {
 					'customerid' => $result['customerid']
 				));
 
+				if ($result['isdynamicdomain']) {
+					$stmt = Database::prepare("UPDATE `" . TABLE_PANEL_CUSTOMERS . "`
+						SET `dynamicdomains_used` = `dynamicdomains_used` - 1
+						WHERE `customerid` = :customerid"
+					);
+					Database::pexecute($stmt, array("customerid" => $userinfo['customerid']));
+				}
+
 				$del_stmt = Database::prepare("
 					DELETE FROM `" . TABLE_DOMAINTOIP . "`
 					WHERE `id_domain` = :domainid");
@@ -412,6 +420,16 @@ if ($page == 'domains' || $page == 'overview') {
 				if ($userinfo['change_serversettings'] == '1') {
 
 					$caneditdomain = isset($_POST['caneditdomain']) ? intval($_POST['caneditdomain']) : 0;
+					$isdynamicdomain = isset($_POST['isdynamicdomain']) ? intval($_POST['isdynamicdomain']) : 0;
+					$dynamicipv4 = isset($_POST['dynamicipv4']) ? $_POST['dynamicipv4'] : '';
+					$dynamicipv4 = ($dynamicipv4 == '') ? null : validate_ip($dynamicipv4);
+					$dynamicipv6 = isset($_POST['dynamicipv6']) ? $_POST['dynamicipv6'] : '';
+					$dynamicipv6 = ($dynamicipv6 == '') ? null : validate_ip($dynamicipv6);
+
+					if ($isdynamicdomain == 1 && $result['isdynamicdomain'] == 0 && $userinfo['dynamicdomains'] != -1 && $userinfo['dynamicdomains_used'] + 1 > $userinfo['dynamicdomains'] ) {
+						standard_error('dynamicdomainslimit');
+						exit;
+					}
 
 					$isbinddomain = '0';
 					$zonefile = '';
@@ -449,6 +467,9 @@ if ($page == 'domains' || $page == 'overview') {
 						$isbinddomain = '1';
 					}
 					$caneditdomain = '1';
+					$isdynamicdomain = '0';
+					$dynamicipv4 = '';
+					$dynamicipv6 = '';
 					$zonefile = '';
 					$dkim = '1';
 					$specialsettings = '';
@@ -710,6 +731,10 @@ if ($page == 'domains' || $page == 'overview') {
 					$aliasdomain_check = Database::pexecute_first($aliasdomain_check_stmt, $alias_params);
 				}
 
+				if ($isdynamicdomain != '1') {
+					$isdynamicdomain = '0';
+				}
+
 				if (count($ipandports) == 0) {
 					standard_error('noipportgiven');
 				}
@@ -790,6 +815,9 @@ if ($page == 'domains' || $page == 'overview') {
 						'email_only' => $email_only,
 						'subcanemaildomain' => $subcanemaildomain,
 						'caneditdomain' => $caneditdomain,
+						'isdynamicdomain' => $isdynamicdomain,
+						'dynamicipv4' => $dynamicipv4,
+						'dynamicipv6' => $dynamicipv6,
 						'zonefile' => $zonefile,
 						'dkim' => $dkim,
 						'speciallogfile' => $speciallogfile,
@@ -850,6 +878,9 @@ if ($page == 'domains' || $page == 'overview') {
 						'subcanemaildomain' => $subcanemaildomain,
 						'caneditdomain' => $caneditdomain,
 						'phpenabled' => $phpenabled,
+						'isdynamicdomain' => $isdynamicdomain,
+						'dynamicipv4' => $dynamicipv4,
+						'dynamicipv6' => $dynamicipv6,
 						'openbasedir' => $openbasedir,
 						'speciallogfile' => $speciallogfile,
 						'specialsettings' => $specialsettings,
@@ -890,6 +921,9 @@ if ($page == 'domains' || $page == 'overview') {
 						`subcanemaildomain` = :subcanemaildomain,
 						`caneditdomain` = :caneditdomain,
 						`phpenabled` = :phpenabled,
+						`isdynamicdomain` = :isdynamicdomain,
+						`dynamicipv4` = :dynamicipv4,
+						`dynamicipv6` = :dynamicipv6,
 						`openbasedir` = :openbasedir,
 						`speciallogfile` = :speciallogfile,
 						`specialsettings` = :specialsettings,
@@ -941,6 +975,14 @@ if ($page == 'domains' || $page == 'overview') {
 							);
 							Database::pexecute($ins_stmt, $ins_data);
 						}
+					}
+
+					if ($result['isdynamicdomain']) {
+						$stmt = Database::prepare("UPDATE `" . TABLE_PANEL_CUSTOMERS . "`
+							SET `subdomains_used` = `subdomains_used` + 1
+							WHERE `customerid` = :customerid"
+						);
+						Database::pexecute($stmt, array("customerid" => $userinfo['customerid']));
 					}
 
 					triggerLetsEncryptCSRForAliasDestinationDomain($aliasdomain, $log);
@@ -1280,6 +1322,17 @@ if ($page == 'domains' || $page == 'overview') {
 				$issubof = intval($_POST['issubof']);
 				$subcanemaildomain = intval($_POST['subcanemaildomain']);
 				$caneditdomain = isset($_POST['caneditdomain']) ? intval($_POST['caneditdomain']) : 0;
+				$isdynamicdomain = isset($_POST['isdynamicdomain']) ? intval($_POST['isdynamicdomain']) : 0;
+				$dynamicipv4 = isset($_POST['dynamicipv4']) ? $_POST['dynamicipv4'] : '';
+				$dynamicipv4 = ($dynamicipv4 == '') ? null : validate_ip($dynamicipv4);
+				$dynamicipv6 = isset($_POST['dynamicipv6']) ? $_POST['dynamicipv6'] : '';
+				$dynamicipv6 = ($dynamicipv6 == '') ? null : validate_ip($dynamicipv6);
+
+				if ($isdynamicdomain == 1 && $result['isdynamicdomain'] == 0 && $userinfo['dynamicdomains'] != -1 && $userinfo['dynamicdomains_used'] + 1 > $userinfo['dynamicdomains'] ) {
+					standard_error('dynamicdomainslimit');
+					exit;
+				}
+
 				$registration_date = trim($_POST['registration_date']);
 				$registration_date = validate($registration_date, 'registration_date', '/^(19|20)\d\d[-](0[1-9]|1[012])[-](0[1-9]|[12][0-9]|3[01])$/', '', array(
 					'0000-00-00',
@@ -1572,6 +1625,10 @@ if ($page == 'domains' || $page == 'overview') {
 					$dkim = '0';
 				}
 
+				if ($isdynamicdomain != '1') {
+					$isdynamicdomain = '0';
+				}
+
 				if ($caneditdomain != '1') {
 					$caneditdomain = '0';
 				}
@@ -1650,6 +1707,9 @@ if ($page == 'domains' || $page == 'overview') {
 					'email_only' => $email_only,
 					'subcanemaildomain' => $subcanemaildomain,
 					'caneditdomain' => $caneditdomain,
+					'isdynamicdomain' => $isdynamicdomain,
+					'dynamicipv4' => $dynamicipv4,
+					'dynamicipv6' => $dynamicipv6,
 					'zonefile' => $zonefile,
 					'dkim' => $dkim,
 					'selectserveralias' => $serveraliasoption,
@@ -1854,6 +1914,9 @@ if ($page == 'domains' || $page == 'overview') {
 				$update_data['subcanemaildomain'] = $subcanemaildomain;
 				$update_data['dkim'] = $dkim;
 				$update_data['caneditdomain'] = $caneditdomain;
+				$update_data['isdynamicdomain'] = $isdynamicdomain;
+				$update_data['dynamicipv4'] = $dynamicipv4;
+				$update_data['dynamicipv6'] = $dynamicipv6;
 				$update_data['zonefile'] = $zonefile;
 				$update_data['wwwserveralias'] = $wwwserveralias;
 				$update_data['iswildcarddomain'] = $iswildcarddomain;
@@ -1889,6 +1952,9 @@ if ($page == 'domains' || $page == 'overview') {
 					`subcanemaildomain` = :subcanemaildomain,
 					`dkim` = :dkim,
 					`caneditdomain` = :caneditdomain,
+					`isdynamicdomain` = :isdynamicdomain,
+					`dynamicipv4` = :dynamicipv4,
+					`dynamicipv6` = :dynamicipv6,
 					`zonefile` = :zonefile,
 					`wwwserveralias` = :wwwserveralias,
 					`iswildcarddomain` = :iswildcarddomain,
@@ -1949,6 +2015,14 @@ if ($page == 'domains' || $page == 'overview') {
 					WHERE `parentdomainid` = :parentdomainid
 				");
 				Database::pexecute($_update_stmt, $_update_data);
+
+				if ($isdynamicdomain != $result['isdynamicdomain']) {
+					$stmt = Database::prepare("UPDATE `" . TABLE_PANEL_CUSTOMERS . "`
+						SET `dynamicdomains_used` = `dynamicdomains_used` + :difference
+						WHERE `customerid` = :customerid"
+					);
+					Database::pexecute($stmt, array("difference" => ($isdynamicdomain ? 1 : -1), "customerid" => $userinfo['customerid']));
+				}
 
 				// FIXME check how many we got and if the amount of assigned IP's
 				// has changed so we can insert a config-rebuild task if only

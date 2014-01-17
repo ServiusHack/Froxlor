@@ -412,6 +412,7 @@ class FroxlorInstall
 				`tickets` = -1,
 				`tickets_see_all` = 1,
 				`subdomains` = -1,
+				`dynamicdomains` = -1,
 				`traffic` = -1048576
 				");
 		

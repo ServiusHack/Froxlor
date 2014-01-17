@@ -1,7 +1,22 @@
-# Froxlor
+# Customized Froxlor
 
 The server administration software for your needs.
 Developed by experienced server administrators, this panel simplifies the effort of managing your hosting platform.
+
+This froxlor version contains the following additional features:
+* Dynamic DNS (`dynamic-dns` branch)
+
+## Updating from official Froxlor
+
+1. Make sure this repository has the same or a higher version than your Froxlor installation.
+2. Follow normal Froxlor udpate procedure but use the files from this repository.
+
+## Updating from customized Froxlor
+
+1. If the value of `db_version` setting is 201604080 change it to 201603150.
+2. If the value of `db_version` setting is 201608261 change it to 201608260.
+2. Open `install/updates/froxlor/0.9/update_0.9.inc.php`, search for `Adding new dynamic domain field` and comment out all lines starting with `Database::query` up to but excluding the line starting with `updateToDbVersion`.
+3. Follow normal Froxlor udpate procedure but use the files from this repository.
 
 ## Installation
 
