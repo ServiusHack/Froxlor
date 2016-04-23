@@ -1,0 +1,51 @@
+<?php
+
+define('FROXLOR_INSTALL_DIR', dirname(dirname(__FILE__)));
+
+/**
+ * Includes the Usersettings eg. MySQL-Username/Passwort etc.
+ */
+require FROXLOR_INSTALL_DIR.'/lib/userdata.inc.php';
+
+/**
+ * Includes the Functions
+ */
+require FROXLOR_INSTALL_DIR.'/lib/functions.php';
+
+/**
+ * Includes the MySQL-Tabledefinitions etc.
+ */
+require FROXLOR_INSTALL_DIR.'/lib/tables.inc.php';
+
+header('Content-Type: application/xml');
+
+$request = simplexml_load_file('php://input');
+if ($request === false)
+{
+  http_response_code(400);
+  exit;
+}
+
+$email_address = $request->Request->EMailAddress;
+
+?>
+<?xml version="1.0" encoding="utf-8" ?>
+<Autodiscover xmlns="http://schemas.microsoft.com/exchange/autodiscover/responseschema/2006">
+	<Response xmlns="http://schemas.microsoft.com/exchange/autodiscover/outlook/responseschema/2006a">
+		<Account>
+			<AccountType>email</AccountType>
+			<Action>settings</Action>
+<?php foreach (getMailServers() as $server): ?>
+			<Protocol>
+				<Type><?php echo $server['type'];?></Type>
+				<Server><?php echo $server['hostname'];?></Server>
+				<Port><?php echo $server['port'];?></Port>
+				<LoginName><?php echo htmlspecialchars($email_address, ENT_XML1); ?></LoginName>
+				<SPA>off</SPA>
+				<SSL><?php echo $server['ssl'] ? 'on' : 'off';?></SSL>
+			</Protocol>
+<?php endforeach; ?>
+		</Account>
+	</Response>
+</Autodiscover>
+			

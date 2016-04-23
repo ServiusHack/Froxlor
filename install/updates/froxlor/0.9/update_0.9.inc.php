@@ -3954,3 +3954,29 @@ if (isDatabaseVersion('201802130')) {
 
 	updateToDbVersion('201802131');
 }
+
+if (isDatabaseVersion('201802131')) {
+
+	showUpdateStep("Adding mail autoconfiguration fields");
+	$ins_stmt = Database::prepare("
+		INSERT INTO `" . TABLE_PANEL_SETTINGS . "` SET `settinggroup` = 'system', `varname` = :varname, `value` = :value
+	");
+
+	$enabled = isset($_POST['mail_autoconfig_enabled']) ? (int) $_POST['mail_autoconfig_enabled'] : '1';
+
+	Database::pexecute($ins_stmt, array(
+		'varname' => 'mail_autoconfig_enabled',
+		'value' => $enabled
+	));
+	Database::pexecute($ins_stmt, array(
+		'varname' => 'mail_domain',
+		'value' => isset($_POST['mail_domain']) ? $_POST['mail_domain'] : Settings::get('system.hostname')
+	));
+
+	if ($enabled)
+	{
+		inserttask('4');
+	}
+
+	updateToDbVersion('201802132');
+}

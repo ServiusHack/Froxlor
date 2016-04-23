@@ -121,6 +121,9 @@ function createDomainZone($domain_id, $froxlorhostname = false, $isMainButSubTo 
 		}
 	}
 
+	// additional required records for mail autoconfiguration
+	addRequiredEntry('@MAILAUTOCONF@', 'SRV', $required_entries);
+
 	$primary_ns = null;
 	$zonerecords = array();
 
@@ -260,6 +263,43 @@ function createDomainZone($domain_id, $froxlorhostname = false, $isMainButSubTo 
 							$zonerecords[] = new DnsEntry($record[0], 'TXT', encloseTXTContent($dkim_entries[0], $multiline));
 						} elseif ($record[0] == '_adsp._domainkey' && ! empty($dkim_entries) && isset($dkim_entries[1])) {
 							$zonerecords[] = new DnsEntry($record[0], 'TXT', encloseTXTContent($dkim_entries[1]));
+						}
+					}
+				}
+			}
+		}
+
+		// SRV (Mail Autoconfiguration)
+		if (array_key_exists("SRV", $required_entries)) {
+			foreach ($required_entries as $type => $records) {
+				if ($type == 'SRV') {
+					foreach ($records as $record) {
+						if ($record[0] == '@MAILAUTOCONF@')
+						{
+							# Microsoft Mail Autoconfiguration
+							$zonerecords[] = new DnsEntry('_autodiscover._tcp', 'SRV', '0 443 ' . Settings::get('system.hostname') . '.');
+							# RFC 6186 Mail Autoconfiguration
+				 			foreach (getMailServers() as $server)
+				 			{
+				 				switch ($server['type'])
+				 				{
+				 					case 'POP3':
+				 						if ($server['ssl'])
+											$zonerecords[] = new DnsEntry('_pop3s._tcp', 'SRV', '0 1' . $server['port'] . ' ' . $server['hostname'] . '.', 2);
+				 						else
+											$zonerecords[] = new DnsEntry('_pop3._tcp', 'SRV', '0 1' . $server['port'] . ' ' . $server['hostname'] . '.', 0);
+				 						break;
+				 					case 'IMAP':
+				 						if ($server['ssl'])
+											$zonerecords[] = new DnsEntry('_imaps._tcp', 'SRV', '0 1' . $server['port'] . ' ' . $server['hostname'] . '.', 2);
+				 						else
+											$zonerecords[] = new DnsEntry('_imap._tcp', 'SRV', '0 1' . $server['port'] . ' ' . $server['hostname'] . '.', 0);
+				 						break;
+				 					case 'SMTP':
+										$zonerecords[] = new DnsEntry('_submission._tcp', 'SRV', '0 1' . $server['port'] . ' ' . $server['hostname'] . '.');
+				 						break;
+				 				}
+				 			}
 						}
 					}
 				}

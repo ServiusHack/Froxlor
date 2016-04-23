@@ -727,4 +727,14 @@ function parseAndOutputPreconfig(&$has_preconfig, &$return, $current_version, $c
 			eval("\$return.=\"" . getTemplate("update/preconfigitem") . "\";");
 		}
 	}
+
+	if (versionInUpdate($current_db_version, '201802132')) {
+	    $has_preconfig = true;
+	        $description  = 'You can chose whether you want to enable or disable our Mail client autoconfiguration.<br />Please remember that you need to go through the webserver-configuration when enabled because this feature needs a special configuration.<br /><br />';
+		$question = '<strong>Do you want to enable automatic mail client configuration? (default: yes):</strong>&nbsp;';
+		$question.= makeyesno('mail_autoconfig_enabled', '1', '0', '1').'<br />';
+		$question.= '<strong>Domain of the mail server</strong><br />';
+		$question.= '<input type="text" class="text" name="mail_domain" value="' . Settings::get('system.hostname') . '" /><br />';
+		eval("\$return.=\"" . getTemplate("update/preconfigitem") . "\";");
+	}
 }

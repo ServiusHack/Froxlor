@@ -1,0 +1,53 @@
+<?php
+
+define('FROXLOR_INSTALL_DIR', dirname(dirname(__FILE__)));
+
+/**
+ * Includes the Usersettings eg. MySQL-Username/Passwort etc.
+ */
+require FROXLOR_INSTALL_DIR.'/lib/userdata.inc.php';
+
+/**
+ * Includes the Functions
+ */
+require FROXLOR_INSTALL_DIR.'/lib/functions.php';
+
+/**
+ * Includes the MySQL-Tabledefinitions etc.
+ */
+require FROXLOR_INSTALL_DIR.'/lib/tables.inc.php';
+
+header('Content-Type: application/xml');
+?>
+<?xml version="1.0" encoding="UTF-8"?>
+<clientConfig version="1.1">
+  <emailProvider id="sens-it.de">
+    <domain><?php echo explode('@', $_REQUEST['emailaddress'])[1]; ?></domain>
+    <displayName>SENS IT Mailkonto</displayName>
+    <displayShortName>SENSIT</displayShortName>
+<?php
+foreach (getMailServers() as $server):
+  if ($server['type'] == 'SMTP'):
+?>
+    <outgoingServer type="smtp">
+      <hostname><?php echo $server['hostname'];?></hostname>
+      <port><?php echo $server['port'];?></port>
+      <socketType><?php echo $server['ssl'] ? 'SSL' : 'STARTTLS'; ?></socketType>
+      <authentication>password-encrypted</authentication>
+      <username>%EMAILADDRESS%</username>
+    </outgoingServer>
+<?php
+  else:
+?>
+    <incomingServer type="<?php echo strtolower($server['type']);?>">
+      <hostname><?php echo $server['hostname'];?></hostname>
+      <port><?php echo $server['port'];?></port>
+      <socketType><?php echo $server['ssl'] ? 'SSL' : 'STARTTLS'; ?></socketType>
+      <authentication>password-encrypted</authentication>
+      <username>%EMAILADDRESS%</username>
+    </incomingServer>
+<?php 
+  endif;
+endforeach; ?>
+  </emailProvider>
+</clientConfig>

@@ -49,6 +49,8 @@
 					<include>//service[@type='http']/general/commands</include>
 					<command><![CDATA[a2dismod userdir]]></command>
 					<command><![CDATA[a2enmod headers]]></command>
+					<command><![CDATA[a2enmod proxy]]></command>
+					<command><![CDATA[a2enmod proxy_http]]></command>
 					<file name="/etc/apache2/mods-enabled/fastcgi.conf">
 						<visibility mode="true">{{settings.phpfpm.enabled}}
 						</visibility>
@@ -78,6 +80,23 @@ Alias "/.well-known/acme-challenge" "{{settings.system.letsencryptchallengepath}
 ]]>
 						</content>
 					</file>
+					<file name="/etc/apache2/conf.d/mailautoconfig.conf">
+						<visibility mode="true">{{settings.system.mail_autoconfig_enabled}}
+						</visibility>
+						<content><![CDATA[
+Alias "/autodiscover" "<BASE_PATH>/mail_autoconfiguration"
+Alias "/.well-known/autoconfig/mail" "<BASE_PATH>/mail_autoconfiguration"
+<Directory "<BASE_PATH>/mail_autoconfiguration">
+	Order allow,deny
+	Allow from all
+  	php_admin_value open_basedir "/var/www/froxlor:/tmp"
+	<Files "*.xml">
+	    SetHandler application/x-httpd-php
+	</Files>
+</Directory>
+]]>
+						</content>
+					</file>
 					<command><![CDATA[/etc/init.d/apache2 restart]]></command>
 				</daemon>
 				<daemon name="apache" version="2.4" title="Apache 2.4">
@@ -85,6 +104,8 @@ Alias "/.well-known/acme-challenge" "{{settings.system.letsencryptchallengepath}
 					<include>//service[@type='http']/general/commands</include>
 					<command><![CDATA[a2dismod userdir]]></command>
 					<command><![CDATA[a2enmod headers]]></command>
+					<command><![CDATA[a2enmod proxy]]></command>
+					<command><![CDATA[a2enmod proxy_http]]></command>
 					<file name="/etc/apache2/mods-enabled/fastcgi.conf">
 						<visibility mode="true">{{settings.phpfpm.enabled}}
 						</visibility>

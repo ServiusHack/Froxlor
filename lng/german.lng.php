@@ -1776,3 +1776,9 @@ $lng['domain']['dynamic_ipv6'] = 'Dynamisch zugewiesene IPv6';
 $lng['customer']['dynamicdomains'] = 'Dynamische Domain(s)';
 $lng['error']['dynamicdomainslimit'] = "Sie dürfen keine weiteren dynamischen Domains verwenden.";
 $lng['admin']['dynamicdns'] = "Dynamisches DNS";
+
+// Mail autoconfiguration
+$lng['serversettings']['mail_autoconfig_enabled']['title'] = "Automatische Konfiguration von Mail Clients";
+$lng['serversettings']['mail_autoconfig_enabled']['description'] = "Thunderbird, Outlook und RFC-konforme Mailclients konfigurieren die Mailserver automatisch richtig.";
+$lng['serversettings']['mail_domain']['title'] = "Domain des Mailservers";
+$lng['serversettings']['mail_domain']['description'] = "Die Domain unter welcher der Mailclient den Mailserver erreicht.";

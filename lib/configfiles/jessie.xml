@@ -48,6 +48,8 @@
 					<include>//service[@type='http']/general/commands</include>
 					<command><![CDATA[a2dismod userdir]]></command>
 					<command><![CDATA[a2enmod headers]]></command>
+					<command><![CDATA[a2enmod proxy]]></command>
+					<command><![CDATA[a2enmod proxy_http]]></command>
 					<command>
 						<visibility mode="true">{{settings.phpfpm.enabled}}
 						</visibility>
@@ -75,6 +77,23 @@
 Alias "/.well-known/acme-challenge" "{{settings.system.letsencryptchallengepath}}/.well-known/acme-challenge"
 <Directory "{{settings.system.letsencryptchallengepath}}/.well-known/acme-challenge">
 	Require all granted
+</Directory>
+]]>
+						</content>
+					</file>
+					<file name="/etc/apache2/conf.d/mailautoconfig.conf">
+						<visibility mode="true">{{settings.system.mail_autoconfig_enabled}}
+						</visibility>
+						<content><![CDATA[
+Alias "/autodiscover" "<BASE_PATH>/mail_autoconfiguration"
+Alias "/.well-known/autoconfig/mail" "<BASE_PATH>/mail_autoconfiguration"
+<Directory "<BASE_PATH>/mail_autoconfiguration">
+	Order allow,deny
+	Allow from all
+  	php_admin_value open_basedir "/var/www/froxlor:/tmp"
+	<Files "*.xml">
+	    SetHandler application/x-httpd-php
+	</Files>
 </Directory>
 ]]>
 						</content>

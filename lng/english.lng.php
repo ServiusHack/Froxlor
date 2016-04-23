@@ -2126,3 +2126,9 @@ $lng['domain']['dynamic_ipv6'] = 'Dynamically assigned IPv6';
 $lng['customer']['dynamicdomains'] = 'Dynamic domain(s)';
 $lng['error']['dynamicdomainslimit'] = "You can not have more dynamic domains.";
 $lng['admin']['dynamicdns'] = "Dynamic DNS";
+
+// Mail autoconfiguration
+$lng['serversettings']['mail_autoconfig_enabled']['title'] = "Automatic configuration of mail clients";
+$lng['serversettings']['mail_autoconfig_enabled']['description'] = "Thunderbird, Outlook and RFC 6186 compliant mail clients automatically configure the correct mail server.";
+$lng['serversettings']['mail_domain']['title'] = "Domain of the mail server";
+$lng['serversettings']['mail_domain']['description'] = "The domain where the mail client reaches the mail servers.";
