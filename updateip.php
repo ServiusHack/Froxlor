@@ -69,29 +69,33 @@ if (!isset($_REQUEST['domain'])) {
 	exit;
 }
 
-$domain = $_REQUEST['domain'];
+$domains = explode(',', $_REQUEST['domain']);
+$domaininfos = array();
 
-/**
- * Check if domain is dynamically updatable.
- */
-$domain_stmt = Database::prepare("SELECT * FROM `" . TABLE_PANEL_DOMAINS . "`
-	WHERE `domain`= :domain AND `customerid` = :customerid"
-);
-Database::pexecute($domain_stmt, array("domain" => $domain, "customerid" => $userinfo["customerid"]));
+foreach ($domains as $domain) {
 
-if ($domain_stmt->rowCount() == 0) {
-	header('HTTP/1.1 400 Bad Request');
-	header('Content-Type: text/plain');
-	echo 'nohost';
-	exit;
+	/**
+	 * Check if domain is dynamically updatable.
+	 */
+	$domain_stmt = Database::prepare("SELECT * FROM `" . TABLE_PANEL_DOMAINS . "`
+		WHERE `domain`= :domain AND `customerid` = :customerid"
+	);
+	Database::pexecute($domain_stmt, array("domain" => $domain, "customerid" => $userinfo["customerid"]));
+
+	if ($domain_stmt->rowCount() != 0) {
+		$domaininfo = $domain_stmt->fetch(PDO::FETCH_ASSOC);
+		if ($domaininfo['isdynamicdomain']) {
+			$domaininfos[$domain] = $domaininfo;
+		}
+	}
 }
 
-$domaininfo = $domain_stmt->fetch(PDO::FETCH_ASSOC);
-
-if (!$domaininfo['isdynamicdomain']) {
+$unavailable_domains = array_diff($domains, array_keys($domaininfos));
+if (count($unavailable_domains) > 0) {
 	header('HTTP/1.1 400 Bad Request');
 	header('Content-Type: text/plain');
 	echo 'nohost';
+	echo implode(',', $unavailable_domains);
 	exit;
 }
 
@@ -137,14 +141,29 @@ if (isset($_REQUEST['detect'])) {
 	}
 }
 
-$update_stmt = Database::prepare("UPDATE `" . TABLE_PANEL_DOMAINS . "`
-	SET `dynamicipv4` = :dynamicipv4,
-	`dynamicipv6` = :dynamicipv6
-	WHERE `domain` = :domain"
-);
-Database::pexecute($update_stmt, array("dynamicipv4" => $ipv4, "dynamicipv6" => $ipv6, "domain" => $domain));
+$changed_ipv4 = false;
+$changed_ipv6 = false;
 
-$changed = false;
+foreach ($domaininfos as $domaininfo) {
+	$perform_update = false;
+	if ($ipv4 != $domaininfo['dynamicipv4']) {
+		$changed_ipv4 = true;
+		$perform_update = true;
+	}
+	if ($ipv6 != $domaininfo['dynamicipv6']) {
+		$changed_ipv6 = true;
+		$perform_update = true;
+	}
+
+	if ($perform_update) {
+		$update_stmt = Database::prepare("UPDATE `" . TABLE_PANEL_DOMAINS . "`
+			SET `dynamicipv4` = :dynamicipv4,
+			`dynamicipv6` = :dynamicipv6
+			WHERE `domain` = :domain"
+		);
+		Database::pexecute($update_stmt, array("dynamicipv4" => $ipv4, "dynamicipv6" => $ipv6, "domain" => $domain));
+	}
+}
 
 /**
  * Build response.
@@ -152,24 +171,22 @@ $changed = false;
 header('HTTP/1.1 200 OK');
 header('Content-Type: text/plain');
 $messages = array();
-if ($ipv4 == $domaininfo['dynamicipv4']) {
+if ($changed_ipv4) {
 	$messages[] = "nochg $ipv4";
 }
 else {
 	$messages[] = "good $ipv4";
-	$changed = true;
 }
 
-if ($ipv6 == $domaininfo['dynamicipv6']) {
+if ($changed_ipv6) {
 	$messages[] ="nochg $ipv6";
 }
 else {
 	$messages[] ="good $ipv6";
-	$changed = true;
 }
 echo implode($messages, "\n");
 
-if ($changed)
+if ($changed_ipv4 || $changed_ipv6)
 {
 	/**
 	 * Insert a task which rebuilds the server config.
