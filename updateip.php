@@ -149,7 +149,7 @@ $changed = false;
 /**
  * Build response.
  */
-header('HTTP/1.1 202 Accepted');
+header('HTTP/1.1 200 OK');
 header('Content-Type: text/plain');
 $messages = array();
 if ($ipv4 == $domaininfo['dynamicipv4']) {
