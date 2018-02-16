@@ -3980,3 +3980,13 @@ if (isDatabaseVersion('201802131')) {
 
 	updateToDbVersion('201802132');
 }
+
+if (isDatabaseVersion('201802132')) {
+
+	showUpdateStep("Adding fields writeaccesslog and writeerrorlog for domains");
+	Database::query("ALTER TABLE `" . TABLE_PANEL_DOMAINS . "` ADD `writeaccesslog` tinyint(1) NOT NULL default '1';");
+	Database::query("ALTER TABLE `" . TABLE_PANEL_DOMAINS . "` ADD `writeerrorlog` tinyint(1) NOT NULL default '1';");
+	lastStepStatus(0);
+
+	updateToDbVersion('201802133');
+}

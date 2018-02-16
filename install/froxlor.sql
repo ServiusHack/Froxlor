@@ -268,6 +268,8 @@ CREATE TABLE `panel_domains` (
   `ocsp_stapling` tinyint(1) DEFAULT '0',
   `http2` tinyint(1) DEFAULT '0',
   `notryfiles` tinyint(1) DEFAULT '0',
+  `writeaccesslog` tinyint(1) DEFAULT '1',
+  `writeerrorlog` tinyint(1) DEFAULT '1',
   PRIMARY KEY  (`id`),
   KEY `customerid` (`customerid`),
   KEY `parentdomain` (`parentdomainid`),
